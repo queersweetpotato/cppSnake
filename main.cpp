@@ -44,13 +44,38 @@ class Snake {
       snake.push_back({3, middle});
       snake.push_back({2, middle});
      
-      //set up board
-      //horizontal top and bottom
+      //set up empty board
       for(int i = 0; i<boardSize; i++) {
-        board[0] + "-"; 
-	board[boardSize-1] + "-";
+        board[i] = "";
       }
 
+      //fill board line by line
+      for(int i = 0; i<boardSize+2; i++) {
+	for(int j = 0; j<boardSize+2; j++) {
+          //top and bottom row are ----- horizontal borders
+          if(j==0 || j==boardSize+1) {
+	    board[j] = board[j].append("-"); 
+	  }
+
+	  //first and last column are | vertical borders
+	  else if(i==0 || i==boardSize+1) {
+            board[j] = board[j].append("|");
+	  }
+
+	  else {
+	    board[j] = board[j].append(" ");
+	  }
+        }
+      }
+     
+      //when graphically editing the board, coordinates are in y,x format
+
+      //place snake --> indicated with #
+      for(vector<int> v : snake) {
+        board[v.at(1)][v.at(0)] = '#'; 
+      }
+
+      //place apple --> indicated with o
       generateApple();
       printSnake();
     }
@@ -82,17 +107,17 @@ class Snake {
       switch(direction) {
         case 'w':
 	  movement[0] = 0;
-	  movement[1] = 1;
+	  movement[1] = -1;
 	  cout << "moving up!\n";
 	  break;
 	case 'a':
 	  movement[0] = -1;
 	  movement[1] = 0;
-	  cout << "moving left!\n";
+	  board[appleCoordinates.at(1)][appleCoordinates.at(0)] = 'o';cout << "moving left!\n";
 	  break;
 	case 's':
 	  movement[0] = 0;
-	  movement[1] = -1;
+	  movement[1] = 1;
 	  cout << "moving down!\n";
 	  break;
 	case 'd':
@@ -115,6 +140,10 @@ class Snake {
         cout << "Eating apple!\n";
 	eat();
       }
+
+      //move the snake on the board
+      board[nextCoords.at(1)][nextCoords.at(0)] = '#';
+      board[snake.at(snake.size()-1).at(1)][snake.at(snake.size()-1).at(0)] = ' ';
 
       //move the snake
       for(int i=snake.size()-1; i>0; i--) {
@@ -139,8 +168,8 @@ class Snake {
       }
 
       //if left side doesn't work, try below
-      if(verifyCoordinates({snake.at(snake.size()-1).at(0), snake.at(snake.size()-1).at(1)-1})) {
-        snake.at(snake.size()-1).at(1)--;
+      if(verifyCoordinates({snake.at(snake.size()-1).at(0), snake.at(snake.size()-1).at(1)+1})) {
+        snake.at(snake.size()-1).at(1)++;
         return;
       }
 
@@ -151,8 +180,8 @@ class Snake {
       }
 
       //finally try above
-      if(verifyCoordinates({snake.at(snake.size()-1).at(0),snake.at(snake.size()-1).at(1)+1})) {
-        snake.at(snake.size()-1).at(1)++;
+      if(verifyCoordinates({snake.at(snake.size()-1).at(0),snake.at(snake.size()-1).at(1)-1})) {
+        snake.at(snake.size()-1).at(1)--;
         return;
       }
 
@@ -167,6 +196,8 @@ class Snake {
         appleCoordinates.at(1) = rand() % (boardSize + 1);
       } while(!verifyCoordinates(appleCoordinates));
       //must verify that the apple isn't inside the snake
+
+      board[appleCoordinates.at(1)][appleCoordinates.at(0)] = 'o';
     }
 
     //method to verify that a given coordinate pair isn't inside the snake or the wall
@@ -190,6 +221,11 @@ class Snake {
       }
       cout << "\nApple: [" << appleCoordinates.at(0) << ", " << appleCoordinates.at(1) << "]\n";
       cout << "Score: " << score << "\n";
+
+      //print board
+      for(int i=0; i<boardSize+2; i++) {
+        cout << board[i] << "\n";
+      }
       
     }
 };
